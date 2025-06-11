@@ -1,0 +1,41 @@
+# Usa una imagen base de PHP con Apache
+FROM php:8.2-apache
+
+# Instala las extensiones PHP necesarias para Laravel.
+# Estas son comunes, pero puedes añadir o quitar según las que uses en tu proyecto.
+# Por ejemplo, pdo_mysql si usaras MySQL en lugar de PostgreSQL.
+RUN docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd sockets opcache
+
+# Instala Composer globalmente
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Establece el directorio de trabajo dentro del contenedor
+# Render montará tu "Root Directory" aquí.
+WORKDIR /var/www/html
+
+# Copia todo el contenido de tu carpeta 'venta-zapatos-backend' al WORKDIR del contenedor.
+# Dado que Render ya apunta el "Root Directory" a 'venta-zapatos-backend',
+# solo necesitas copiar '.' (el contenido de ese root directory).
+COPY . .
+
+# Establece los permisos correctos para Laravel para que pueda escribir en estas carpetas.
+# Es crucial para que Laravel funcione correctamente (cache, logs, etc.)
+RUN chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
+
+# Instala las dependencias de Composer y optimiza para producción.
+RUN composer install --no-dev --optimize-autoloader
+
+# Configura Apache para que apunte al directorio 'public' de Laravel
+# Primero, elimina el archivo de configuración por defecto de Apache
+RUN rm /etc/apache2/sites-available/000-default.conf
+# Luego, copia tu archivo de configuración personalizado
+COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+# Habilita el módulo de reescritura de URLs de Apache, esencial para Laravel
+RUN a2enmod rewrite
+
+# Habilita el sitio por defecto con tu nueva configuración
+RUN a2ensite 000-default.conf
+
+# Exponer el puerto por el que Apache servirá la aplicación
+EXPOSE 80
