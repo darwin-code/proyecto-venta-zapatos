@@ -1,1 +1,10 @@
-"# Laravel Backend/venta-zapatos-backend/vendor/venta-zapatos-backend/node_modules/venta-zapatos-backend/.env/venta-zapatos-backend/public/storage# React Frontend/venta-zapatos-frontend/node_modules/venta-zapatos-frontend/.env/venta-zapatos-frontend/build" 
+# Laravel Backend
+/venta-zapatos-backend/vendor
+/venta-zapatos-backend/node_modules
+/venta-zapatos-backend/.env
+/venta-zapatos-backend/public/storage
+
+# React Frontend
+/venta-zapatos-frontend/node_modules
+/venta-zapatos-frontend/.env
+/venta-zapatos-frontend/build
